@@ -11,10 +11,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import minecrafttransportsimulator.baseclasses.ColorRGB;
+import minecrafttransportsimulator.baseclasses.Orientation3d;
 import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.entities.instances.EntityParticle;
-import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.items.components.AItemPack;
 import minecrafttransportsimulator.items.components.AItemSubTyped;
 import minecrafttransportsimulator.jsondefs.AJSONMultiModelProvider;
@@ -110,7 +110,7 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 	}
 	
 	/**Constructor for un-synced entities.  Allows for specification of position/motion/angles.**/
-	public AEntityC_Definable(WrapperWorld world, Point3d position, Point3d motion, Point3d angles, AItemSubTyped<JSONDefinition> creatingItem){
+	public AEntityC_Definable(WrapperWorld world, Point3d position, Point3d motion, Orientation3d angles, AItemSubTyped<JSONDefinition> creatingItem){
 		super(world, position, motion, angles);
 		this.subName = creatingItem.subName;
 		this.definition = creatingItem.definition;

@@ -1532,7 +1532,7 @@ public final class LegacyCompatSystem{
     	    	animation.absolute = rotatable.absoluteValue;
     	    	if(rotatable.rotationVariable.equals("steering_wheel")){
     	    		animation.variable = "rudder";
-    	    		animation.axis.multiply(-1D);
+    	    		animation.axis.invert(-1D);
     	    	}
     	    	if(rotatable.rotationVariable.equals("door")){
     	    		animation.duration = 30;
@@ -1569,7 +1569,7 @@ public final class LegacyCompatSystem{
     	    	animation.absolute = translatable.absoluteValue;
     	    	if(translatable.translationVariable.equals("steering_wheel")){
     	    		animation.variable = "rudder";
-    	    		animation.axis.multiply(-1D);
+    	    		animation.axis.invert();
     	    	}
     	    	if(translatable.translationVariable.equals("door")){
     	    		animation.duration = 30;
