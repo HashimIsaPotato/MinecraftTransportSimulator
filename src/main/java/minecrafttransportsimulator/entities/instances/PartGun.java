@@ -252,6 +252,7 @@ public class PartGun extends APart{
 					//For pitch, we need to find the relative angle of the player to the entity's 0-pitch plane.
 					//When the player rotates their head, they don't do so relative to the pitch of the entity the gun is on, 
 					//so a yaw change can result in a pitch change.
+<<<<<<< HEAD
 					if(playerHolding == null){
 						double partYawContribution = definition.gun.yawIsInternal ? localAngles.y : localAngles.y - prevOrientation.y;
 						double partPitchContribution = definition.gun.pitchIsInternal ? localAngles.x : localAngles.x - prevOrientation.x;
@@ -260,6 +261,83 @@ public class PartGun extends APart{
 						double targetYaw = controller.getYaw() - (entityOn.angles.y + partYawContribution);
 						double targetPitch = controller.getPitch() - (entityPitchContribution + entityRollContribution);
 						handleMovement(targetYaw, targetPitch);
+=======
+					double partYawContribution = definition.gun.yawIsInternal ? localAngles.y : localAngles.y - prevOrientation.y;
+					double partPitchContribution = definition.gun.pitchIsInternal ? localAngles.x : localAngles.x - prevOrientation.x;
+					double entityPitchContribution = (entityOn.orientation.x + partPitchContribution)*Math.cos(Math.toRadians(partYawContribution));
+					double entityRollContribution = (entityOn.orientation.z + localAngles.z)*Math.sin(Math.toRadians(partYawContribution));
+					targetYaw = controller.getYaw() - (entityOn.orientation.y + partYawContribution);
+					targetPitch = controller.getPitch() - (entityPitchContribution + entityRollContribution);
+				}else{
+					targetYaw = defaultYaw;
+					targetPitch = defaultPitch;
+				}
+				prevOrientation.setTo(currentOrientation);
+				
+				//Adjust yaw.  We need to normalize the delta here as yaw can go past -180 to 180.
+				double deltaYaw = -currentOrientation.getClampedYDelta(targetYaw);
+				if(deltaYaw < 0){
+					if(deltaYaw < -definition.gun.yawSpeed){
+						deltaYaw = -definition.gun.yawSpeed;
+						lockedOn = false;
+					}
+					currentOrientation.y += deltaYaw; 
+				}else if(deltaYaw > 0){
+					if(deltaYaw > definition.gun.yawSpeed){
+						deltaYaw = definition.gun.yawSpeed;
+						lockedOn = false;
+					}
+					currentOrientation.y += deltaYaw;
+				}
+				//Apply yaw clamps.
+				//If yaw is from -180 to 180, we are a gun that can spin around on its mount.
+				//We need to do special logic for this type of gun.
+				if(minYaw == -180  && maxYaw == 180){
+					if(currentOrientation.y > 180 ){
+						currentOrientation.y -= 360;
+						prevOrientation.y -= 360;
+					}else if(currentOrientation.y < -180){
+						currentOrientation.y += 360;
+						prevOrientation.y += 360;
+					}
+				}else{
+					if(currentOrientation.y > maxYaw){
+						currentOrientation.y = maxYaw;
+					}
+					if(currentOrientation.y < minYaw){
+						currentOrientation.y = minYaw;
+					}
+				}
+				
+				//Adjust pitch.
+				double deltaPitch = targetPitch - currentOrientation.x;
+				if(deltaPitch < 0){
+					if(deltaPitch < -definition.gun.pitchSpeed){
+						deltaPitch = -definition.gun.pitchSpeed;
+						lockedOn = false;
+					}
+					currentOrientation.x += deltaPitch; 
+				}else if(deltaPitch > 0){
+					if(deltaPitch > definition.gun.pitchSpeed){
+						deltaPitch = definition.gun.pitchSpeed;
+						lockedOn = false;
+					}
+					currentOrientation.x += deltaPitch;
+				}
+				//Apply pitch clamps.
+				if(currentOrientation.x < maxPitch){
+					currentOrientation.x = maxPitch;
+				}
+				if(currentOrientation.x > minPitch){
+					currentOrientation.x = minPitch;
+				}
+				
+				//If we told the gun to fire because we saw an entity, but we can't hit it due to the gun clamp don't fire.
+				//This keeps NPCs from wasting ammo.
+				if(!(controller instanceof WrapperPlayer)){
+					if(!lockedOn || currentOrientation.y == minYaw || currentOrientation.y == maxYaw || currentOrientation.x == minPitch || currentOrientation.x == maxPitch){
+						firingEnabled = false;
+>>>>>>> More rotation overhaul work.  Finalized Orientation3d class, so now need to start work on changing methods and math.
 					}
 				}
 				
@@ -586,7 +664,7 @@ public class PartGun extends APart{
 			
 			//Set the bullet's direction the the provider's orientation.
 			Point3d bulletVelocity = new Point3d(0D, 0D, 1D).rotateFine(spreadAngle);
-			bulletVelocity.rotateFine(localAngles).rotateFine(entityOn.angles);
+			bulletVelocity.rotateFine(localAngles).rotateFine(entityOn.orientation);
 			
 			//If we have a gun with a muzzle velocity, set the bullet's velocity to that.  Otherwise set it to the vehicle's velocity.
 			if(definition.gun.muzzleVelocity > 0){
@@ -597,7 +675,13 @@ public class PartGun extends APart{
 			
 			//Get the bullet's initial position, adjusted for barrel length and gun orientation.
 			//Then move the bullet to the appropriate firing position.
+<<<<<<< HEAD
 			Point3d bulletPosition = new Point3d(0, 0, definition.gun.length).rotateFine(localAngles).rotateFine(entityOn.angles).add(position);
+=======
+			Point3d bulletPosition = getFiringOrigin();
+			bulletPosition.rotateFine(localAngles).rotateFine(entityOn.orientation);
+			bulletPosition.add(position);
+>>>>>>> More rotation overhaul work.  Finalized Orientation3d class, so now need to start work on changing methods and math.
 
 			//Add the bullet as a particle.
 			//If the bullet is a missile, give it a target.

@@ -29,7 +29,6 @@ abstract class AEntityVehicleC_Colliding extends AEntityVehicleB_Rideable{
 	private float hardnessHitThisTick = 0;
 	public double currentMass;
 	public double axialVelocity;
-	public final Point3d headingVector = new Point3d();
 	public final Point3d verticalVector = new Point3d();
 	public final Point3d sideVector = new Point3d();
 	public final Point3d normalizedVelocityVector = new Point3d();
@@ -42,11 +41,10 @@ abstract class AEntityVehicleC_Colliding extends AEntityVehicleB_Rideable{
 	public boolean update(){
 		if(super.update()){
 			//Set vectors to current velocity and orientation.
-			headingVector.set(0D, 0D, 1D).rotateFine(angles);
-			verticalVector.set(0D, 1D, 0D).rotateFine(angles);
-			sideVector.setTo(verticalVector.crossProduct(headingVector));
+			verticalVector.set(0D, 1D, 0D).rotateFine(orientation.axis);
+			sideVector.setTo(verticalVector.crossProduct(orientation.axis));
 			normalizedVelocityVector.setTo(motion).normalize();
-			axialVelocity = Math.abs(motion.dotProduct(headingVector));
+			axialVelocity = Math.abs(motion.dotProduct(orientation.axis));
 			
 			//Update mass.
 			currentMass = getMass();
