@@ -123,7 +123,7 @@ abstract class AEntityVehicleB_Rideable extends AEntityE_Multipart<JSONVehicle>{
 				//Rider won't be, as it's required, so we can use it to get the actual location.
 				PartSeat seat = (PartSeat) getPartAtLocation(locationRiderMap.inverse().get(rider));
 				if(seat != null){
-					rider.setYaw(orientation.rotationY + seat.localAngles.y);
+					rider.setYaw(orientation.rotationY + seat.localOrientation.y);
 				}
 			}
 		}

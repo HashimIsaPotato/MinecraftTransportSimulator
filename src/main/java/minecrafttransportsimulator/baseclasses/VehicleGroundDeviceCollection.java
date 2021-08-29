@@ -314,7 +314,7 @@ public class VehicleGroundDeviceCollection{
 			Point3d hookupPoint = vehicle.towedByConnection.hookupConnection.pos.copy();
 			if(vehicle.towedByConnection.hookupEntity instanceof APart){
 				APart hookupPart = (APart) vehicle.towedByConnection.hookupEntity;
-				hookupPoint = hookupPoint.rotateFine(hookupPart.localAngles).add(hookupPart.localOffset);
+				hookupPoint = hookupPoint.rotateFine(hookupPart.localOrientation).add(hookupPart.localOffset);
 			}
 			//System.out.println(activeHookup);
 			if(hookupPoint.z > 0){

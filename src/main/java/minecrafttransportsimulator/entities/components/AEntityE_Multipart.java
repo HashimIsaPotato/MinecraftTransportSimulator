@@ -152,7 +152,7 @@ public abstract class AEntityE_Multipart<JSONDefinition extends AJSONPartProvide
 						for(JSONPartDefinition subPartDef : part.definition.parts){
 							if(packVehicleDef.equals(part.getPackForSubPart(subPartDef))){
 								//Need to find the delta between our 0-degree position and our current position.
-								Point3d delta = subPartDef.pos.copy().rotateFine(part.localAngles).subtract(subPartDef.pos);
+								Point3d delta = subPartDef.pos.copy().rotateFine(part.localOrientation).subtract(subPartDef.pos);
 								box.updateToEntity(this, delta);
 								updatedToSubPart = true;
 								break;

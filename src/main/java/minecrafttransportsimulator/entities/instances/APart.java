@@ -9,6 +9,7 @@ import java.util.Set;
 
 import minecrafttransportsimulator.baseclasses.BoundingBox;
 import minecrafttransportsimulator.baseclasses.Damage;
+import minecrafttransportsimulator.baseclasses.Orientation3d;
 import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.baseclasses.TrailerConnection;
 import minecrafttransportsimulator.entities.components.AEntityD_Interactable;
@@ -39,7 +40,7 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 	//JSON properties.
 	public final JSONPartDefinition placementDefinition;
 	public final Point3d placementOffset;
-	public final Point3d placementAngles;
+	public final Orientation3d placementOrientation;
 	public final boolean disableMirroring;
 	
 	//Instance properties.
@@ -68,7 +69,7 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 	public double scale = 1.0;
 	public final Point3d localOffset;
 	public final Point3d prevLocalOffset;
-	public final Point3d localAngles;
+	public final Orientation3d localOrientation;
 		
 	public APart(AEntityE_Multipart<?> entityOn, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
 		super(entityOn.world, data);
@@ -79,8 +80,8 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 		this.prevLocalOffset = localOffset.copy();
 		this.placementDefinition = placementDefinition;
 		this.boundingBox = new BoundingBox(placementOffset, position, getWidth()/2D, getHeight()/2D, getWidth()/2D, definition.ground != null ? definition.ground.canFloat : false, false, false, 0);
-		this.placementAngles = placementDefinition.rot != null ? placementDefinition.rot : new Point3d();
-		this.localAngles = placementAngles.copy();
+		this.placementOrientation = placementDefinition.rot != null ? placementDefinition.rot : new Point3d();
+		this.localOrientation = placementOrientation.copy();
 		
 		//If we are an additional part or sub-part, link ourselves now.
 		//If we are a fake part, don't even bother checking.
@@ -109,8 +110,8 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 		
 		//Set initial position and rotation.
 		position.setTo(localOffset).rotateFine(entityOn.orientation).add(entityOn.position);
-		orientation.setTo(localAngles).add(entityOn.orientation);
-		orientation.setTo(placementAngles);
+		orientation.setTo(localOrientation).add(entityOn.orientation);
+		orientation.setTo(placementOrientation);
 		prevOrientation.setTo(orientation);
 	}
 	
@@ -210,13 +211,13 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 				
 				//Rotate our current relative offset by the rotation of the parent to get the correct
 				//offset between us and our parent's position in our parent's coordinate system.
-				localOffset.rotateFine(parentPart.localAngles);
+				localOffset.rotateFine(parentPart.localOrientation);
 				
 				//Add our parent's angles to our own so we have a cumulative rotation.
 				//This has the potential for funny rotations if we're both rotated, as we should
 				//apply this rotation about our parent's rotated axis, not our own, but for most situations,
 				//it's close enough.
-				localAngles.add(parentPart.localAngles);
+				localOrientation.add(parentPart.localOrientation);
 				
 				//Now that we have the proper relative offset, add our parent's offset to get our net offset.
 				//This is our final offset point.
@@ -225,7 +226,7 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 			
 			//Set position and rotation to our net offset pos on the entity.
 			position.setTo(localOffset).rotateFine(entityOn.orientation).add(entityOn.position);
-			orientation.setTo(localAngles).add(entityOn.orientation);
+			orientation.setTo(localOrientation).add(entityOn.orientation);
 			
 			//Update post-movement things.
 			updatePostMovement();
@@ -314,7 +315,7 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 		prevScale = scale;
 		scale = placementDefinition.isSubPart && parentPart != null ? parentPart.scale : 1.0;
 		localOffset.set(0D, 0D, 0D);
-		localAngles.set(0D, 0D, 0D);
+		localOrientation.set(0D, 0D, 0D);
 		if(!movementClocks.isEmpty()){
 			for(DurationDelayClock clock : movementClocks){
 				switch(clock.animation.animationType){
@@ -325,7 +326,7 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 							double magnitude = clock.animation.axis.length();
 							double variableValue = getAnimatedVariableValue(clock, magnitude, 0);
 							Point3d appliedTranslation = clock.animation.axis.copy().normalize().multiply(variableValue);
-							localOffset.add(appliedTranslation.rotateFine(localAngles));
+							localOffset.add(appliedTranslation.rotateFine(localOrientation));
 						}
 						break;
 					}
@@ -340,11 +341,11 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 							if(!clock.animation.centerPoint.isZero()){
 								//Use the center point as a vector we rotate to get the applied offset.
 								//We need to take into account the rolling rotation here, as we might have rotated on a prior call.
-								localOffset.add(clock.animation.centerPoint.copy().invert().rotateFine(appliedRotation).add(clock.animation.centerPoint).rotateFine(localAngles));
+								localOffset.add(clock.animation.centerPoint.copy().invert().rotateFine(appliedRotation).add(clock.animation.centerPoint).rotateFine(localOrientation));
 							}
 							
 							//Apply rotation.  We need to do this after translation operations to ensure proper offsets.
-							localAngles.add(appliedRotation);
+							localOrientation.add(appliedRotation);
 						}
 						break;
 					}
@@ -400,7 +401,7 @@ public abstract class APart extends AEntityD_Interactable<JSONPart>{
 		}else{
 			localOffset.add(placementOffset);
 		}
-		localAngles.add(placementAngles);
+		localOrientation.add(placementOrientation);
 		return disablePart;
 	}
 	

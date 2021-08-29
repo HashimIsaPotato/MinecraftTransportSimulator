@@ -15,6 +15,7 @@ import minecrafttransportsimulator.baseclasses.Orientation3d;
 import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.entities.instances.EntityParticle;
+import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.items.components.AItemPack;
 import minecrafttransportsimulator.items.components.AItemSubTyped;
 import minecrafttransportsimulator.jsondefs.AJSONMultiModelProvider;
@@ -476,12 +477,12 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 					case TRANSLATION :{
 						if(!inhibitAnimations){
 							definedBrightness = true;
-							if(clock.animation.axis.x != 0){
-								lightLevel *= getAnimatedVariableValue(clock, clock.animation.axis.x, partialTicks);
-							}else if(clock.animation.axis.y != 0){
-								lightLevel += getAnimatedVariableValue(clock, clock.animation.axis.y, partialTicks);
+							if(clock.animation.axis.axis.x != 0){
+								lightLevel *= getAnimatedVariableValue(clock, clock.animation.axis.axis.x, partialTicks);
+							}else if(clock.animation.axis.axis.y != 0){
+								lightLevel += getAnimatedVariableValue(clock, clock.animation.axis.axis.y, partialTicks);
 							}else{
-								lightLevel = (float) (getAnimatedVariableValue(clock, clock.animation.axis.z, partialTicks));
+								lightLevel = (float) (getAnimatedVariableValue(clock, clock.animation.axis.axis.z, partialTicks));
 							}
 						}
 						break;
@@ -490,9 +491,9 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 						if(!inhibitAnimations){
 							double colorFactor = getAnimatedVariableValue(clock, 1.0, -clock.animation.offset, partialTicks);
 							if(customColor == null){
-								customColor = new ColorRGB((float) Math.min(clock.animation.axis.x*colorFactor + clock.animation.offset, 1.0), (float) Math.min(clock.animation.axis.y*colorFactor + clock.animation.offset, 1.0), (float) Math.min(clock.animation.axis.z*colorFactor + clock.animation.offset, 1.0), false);
+								customColor = new ColorRGB((float) Math.min(clock.animation.axis.axis.x*colorFactor + clock.animation.offset, 1.0), (float) Math.min(clock.animation.axis.axis.y*colorFactor + clock.animation.offset, 1.0), (float) Math.min(clock.animation.axis.axis.z*colorFactor + clock.animation.offset, 1.0), false);
 							}else{
-								customColor = new ColorRGB((float) Math.min(clock.animation.axis.x*colorFactor + clock.animation.offset + customColor.red, 1.0), (float) Math.min(clock.animation.axis.y*colorFactor + clock.animation.offset + customColor.green, 1.0), (float) Math.min(clock.animation.axis.z*colorFactor + clock.animation.offset + customColor.blue, 1.0), false);
+								customColor = new ColorRGB((float) Math.min(clock.animation.axis.axis.x*colorFactor + clock.animation.offset + customColor.red, 1.0), (float) Math.min(clock.animation.axis.axis.y*colorFactor + clock.animation.offset + customColor.green, 1.0), (float) Math.min(clock.animation.axis.axis.z*colorFactor + clock.animation.offset + customColor.blue, 1.0), false);
 							}
 						}
 						break;
@@ -761,7 +762,7 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 									case TRANSLATION :{
 										if(!inhibitAnimations){
 											definedVolume = true;
-											sound.volume += getAnimatedVariableValue(clock, clock.animation.axis.y, partialTicks);
+											sound.volume += getAnimatedVariableValue(clock, clock.animation.axis.axis.y, partialTicks);
 										}
 										break;
 									}
@@ -769,8 +770,8 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 										if(!inhibitAnimations){
 											definedVolume = true;
 											//Parobola is defined with parameter A being x, and H being z.
-											double parabolaValue = getAnimatedVariableValue(clock, clock.animation.axis.y, -clock.animation.offset, partialTicks);
-											sound.volume += clock.animation.axis.x*Math.pow(parabolaValue - clock.animation.axis.z, 2) + clock.animation.offset;
+											double parabolaValue = getAnimatedVariableValue(clock, clock.animation.axis.axis.y, -clock.animation.offset, partialTicks);
+											sound.volume += clock.animation.axis.axis.x*Math.pow(parabolaValue - clock.animation.axis.axis.z, 2) + clock.animation.offset;
 										}
 										break;
 									}
@@ -823,7 +824,7 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 									case TRANSLATION :{
 										if(!inhibitAnimations){
 											definedPitch = true;
-											sound.pitch += getAnimatedVariableValue(clock, clock.animation.axis.y, partialTicks);
+											sound.pitch += getAnimatedVariableValue(clock, clock.animation.axis.axis.y, partialTicks);
 										}
 										break;
 									}
@@ -831,8 +832,8 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 										if(!inhibitAnimations){
 											definedPitch = true;
 											//Parobola is defined with parameter A being x, and H being z.
-											double parabolaValue = getAnimatedVariableValue(clock, clock.animation.axis.y, -clock.animation.offset, partialTicks);
-											sound.pitch += clock.animation.axis.x*Math.pow(parabolaValue - clock.animation.axis.z, 2) + clock.animation.offset;
+											double parabolaValue = getAnimatedVariableValue(clock, clock.animation.axis.axis.y, -clock.animation.offset, partialTicks);
+											sound.pitch += clock.animation.axis.axis.x*Math.pow(parabolaValue - clock.animation.axis.axis.z, 2) + clock.animation.offset;
 										}
 										break;
 									}
@@ -872,7 +873,7 @@ public abstract class AEntityC_Definable<JSONDefinition extends AJSONMultiModelP
 							
 							//Adjust position.
 							if(soundDef.pos != null){
-								sound.position.setTo(soundDef.pos).rotateFine(angles).add(position);
+								orientation.rotatePoint(sound.position.setTo(soundDef.pos)).add(position);
 							}else{
 								sound.position.setTo(position);
 							}
